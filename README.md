@@ -1,1 +1,1 @@
-A simple voxelrenderer Renders a heightmap
+A simple voxelrenderer, that Renders a heightmap
