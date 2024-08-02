@@ -113,11 +113,36 @@ namespace Voxelrendering2
                 throw new Exception($"Error occurred whilst linking Program({program})");
             }
         }
-
+        public void Use() => GL.UseProgram(Handle);
         // A wrapper function that enables the shader program.
-        public void Use(Matrix4 modelMatrix, Matrix4 viewMatrix, Matrix4 projectionMatrix,bool staticmodel)
+        public void setvert(Matrix4 modelMatrix, Matrix4 lightSpaceMatrix,Matrix4 view)
         {
-            GL.UseProgram(Handle);
+
+            int modelLocation = GL.GetUniformLocation(Handle, "model");
+            GL.UniformMatrix4(modelLocation, false, ref modelMatrix);
+
+            int viewLocation = GL.GetUniformLocation(Handle, "projection");
+            GL.UniformMatrix4(viewLocation, false, ref lightSpaceMatrix);
+
+            int viewloc = GL.GetUniformLocation(Handle, "view");
+            GL.UniformMatrix4(viewloc, false, ref lightSpaceMatrix);
+
+        }
+        public void setvert(Matrix4 modelMatrix, Matrix4 view,Matrix4 projection, Matrix4 lightSpaceMatrix)
+        {
+
+            int modelLocation = GL.GetUniformLocation(Handle, "model");
+            GL.UniformMatrix4(modelLocation, false, ref modelMatrix);
+
+            int viewLocation = GL.GetUniformLocation(Handle, "projection");
+            GL.UniformMatrix4(viewLocation, false, ref lightSpaceMatrix);
+
+            int viewloc = GL.GetUniformLocation(Handle, "view");
+            GL.UniformMatrix4(viewloc, false, ref lightSpaceMatrix);
+
+        }
+        public void setvert(Matrix4 modelMatrix, Matrix4 viewMatrix, Matrix4 projectionMatrix, bool staticModel)
+        {
 
             int modelLocation = GL.GetUniformLocation(Handle, "model");
             GL.UniformMatrix4(modelLocation, false, ref modelMatrix);
@@ -129,78 +154,54 @@ namespace Voxelrendering2
             GL.UniformMatrix4(projectionLocation, false, ref projectionMatrix);
 
             float staticmodelfloat = 0f;
-            if (staticmodel == true)
+            if (staticModel == true)
             {
                 staticmodelfloat = 1f;
             }
             int staticmodelLocation = GL.GetUniformLocation(Handle, "useModelMatrix");
             GL.Uniform1(projectionLocation, staticmodelfloat);
         }
-
-        // The shader sources provided with this project use hardcoded layout(location)-s. If you want to do it dynamically,
-        // you can omit the layout(location=X) lines in the vertex shader, and use this in VertexAttribPointer instead of the hardcoded values.
-        public int GetAttribLocation(string attribName)
+        public void setfrag(int shadowMap, Vector3 lightPos, Vector3 viewPos, Vector3 lightColor)
         {
-            return GL.GetAttribLocation(Handle, attribName);
+            Use();
+            SetInt("shadowMap", shadowMap);
+            SetVector3("lightPos", lightPos);
+            SetVector3("viewPos", viewPos);
+            SetVector3("lightColor", lightColor);
+        }
+        public void SetMatrix4(string name, Matrix4 matrix)
+        {
+            int location = GL.GetUniformLocation(Handle, name);
+            GL.UniformMatrix4(location, false, ref matrix);
         }
 
-        // Uniform setters
-        // Uniforms are variables that can be set by user code, instead of reading them from the VBO.
-        // You use VBOs for vertex-related data, and uniforms for almost everything else.
-
-        // Setting a uniform is almost always the exact same, so I'll explain it here once, instead of in every method:
-        //     1. Bind the program you want to set the uniform on
-        //     2. Get a handle to the location of the uniform with GL.GetUniformLocation.
-        //     3. Use the appropriate GL.Uniform* function to set the uniform.
-
-        /// <summary>
-        /// Set a uniform int on this shader.
-        /// </summary>
-        /// <param name="name">The name of the uniform</param>
-        /// <param name="data">The data to set</param>
-        public void SetInt(string name, int data)
+        public void SetVector3(string name, Vector3 vector)
         {
-            GL.UseProgram(Handle);
-            GL.Uniform1(_uniformLocations[name], data);
+            int location = GL.GetUniformLocation(Handle,name);
+            GL.Uniform3(location, vector);
         }
 
-        /// <summary>
-        /// Set a uniform float on this shader.
-        /// </summary>
-        /// <param name="name">The name of the uniform</param>
-        /// <param name="data">The data to set</param>
-        public void SetFloat(string name, float data)
+        public void SetInt(string name, int value)
         {
-            GL.UseProgram(Handle);
-            GL.Uniform1(_uniformLocations[name], data);
+            int location = GL.GetUniformLocation(Handle,name);
+            GL.Uniform1(location, value);
         }
 
-        /// <summary>
-        /// Set a uniform Matrix4 on this shader
-        /// </summary>
-        /// <param name="name">The name of the uniform</param>
-        /// <param name="data">The data to set</param>
-        /// <remarks>
-        ///   <para>
-        ///   The matrix is transposed before being sent to the shader.
-        ///   </para>
-        /// </remarks>
-        public void SetMatrix4(string name, Matrix4 data)
+        public void Usedepthshader(Matrix4 lightSpaceMatrix, Matrix4 modelMatrix)
         {
-            GL.UseProgram(Handle);
-            GL.UniformMatrix4(_uniformLocations[name], true, ref data);
+            if (Handle == 0)
+            {
+                throw new InvalidOperationException("Shader program handle is not valid.");
+            }
+
+            int modelLocation = GL.GetUniformLocation(Handle, "model");
+            GL.UniformMatrix4(modelLocation, false, ref modelMatrix);
+
+            int viewLocation = GL.GetUniformLocation(Handle, "lightSpaceMatrix");
+            GL.UniformMatrix4(viewLocation, false, ref lightSpaceMatrix);
+
         }
 
-        /// <summary>
-        /// Set a uniform Vector3 on this shader.
-        /// </summary>
-        /// <param name="name">The name of the uniform</param>
-        /// <param name="data">The data to set</param>
-        public void SetVector3(string name, Vector3 data)
-        {
-            GL.UseProgram(Handle);
-            GL.Uniform3(_uniformLocations[name], data);
-        }
     }
 }
 

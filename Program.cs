@@ -1,7 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
-
+using System.Diagnostics.CodeAnalysis;
 namespace Voxelrendering2
 {
     internal static class Program
@@ -11,8 +11,7 @@ namespace Voxelrendering2
             var nativeWindowSettings = new NativeWindowSettings()
             {
                 Size = new Vector2i(2000, 2000),
-                Title = "Simple Voxel",
-                Flags = ContextFlags.ForwardCompatible,
+                Title = "Simple Voxel"
             };
 
             var gameWindowSettings = GameWindowSettings.Default;

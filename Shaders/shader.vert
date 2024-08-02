@@ -1,26 +1,25 @@
-﻿#version 330 core
-layout (location = 0) in vec3 aPos;   // the position variable has attribute position 0
-layout (location = 1) in vec3 aColor; // the color variable has attribute position 1
-  
-out vec3 ourColor; // output a color to the fragment shader
+﻿#version 300 es
+precision mediump float;
+
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec3 aColor;
+
+out vec3 FragPos;
+out vec3 Normal;
+out vec4 FragPosLightSpace;
+out vec3 color;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-uniform float useModelMatrix;
+uniform mat4 lightSpaceMatrix;
 
-void main(void)
+void main()
 {
-    if (useModelMatrix==1)
-    {
-        gl_Position = projection * view * model *vec4(aPos, 1.0);
-        //gl_Position = vec4(aPos, 1.0)*model * view * projection;
-        ourColor = aColor; // set ourColor to the input color we got from the vertex data
-    }
-    else
-    {
-        gl_Position = projection * view *vec4(aPos, 1.0);
-        //gl_Position = vec4(aPos, 1.0)*model * view * projection;
-        ourColor = aColor; // set ourColor to the input color we got from the vertex data
-    }
-}  
+    FragPos = vec3(model * vec4(aPos, 1.0));
+    Normal = mat3(transpose(inverse(model))) * aNormal;
+    FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0);
+    color = aColor;
+    gl_Position = projection * view * vec4(FragPos, 1.0);
+}

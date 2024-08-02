@@ -20,7 +20,7 @@ namespace Voxelrendering2
 
         public void Start()
         {
-            camera = new Camera(new Vector3(0.0f, 100.0f, 3.0f),1120f,-90f);
+            camera = new Camera(new Vector3(0.0f, 100.0f, 3.0f),0,0f);
             Terrainmeshgenerator terrainmeshgenerator = new Terrainmeshgenerator(250);
         }
         public void Update(Inputvar inputvar,GameWindow window)
@@ -36,6 +36,7 @@ namespace Voxelrendering2
             Console.WriteLine(1/deltatime);
             camera.Position += (Vector3)deltapos;
             camera.ProcessMouseMovement(deltarotation.X,deltarotation.Y);
+           
         }
         
     }

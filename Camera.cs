@@ -34,12 +34,12 @@ namespace Voxelrendering2
         {
             Yaw += deltaX;
             Pitch -= deltaY;
-            Console.WriteLine("Yaw: "+Yaw+"Pitch: "+Pitch);
+            //Console.WriteLine("Yaw: "+Yaw+"Pitch: "+Pitch);
             // Constrain the pitch to avoid flipping
-            if (Pitch > 89.0f)
-                Pitch = 89.0f;
-            if (Pitch < -89.0f)
-                Pitch = -89.0f;
+            if (Pitch > 89.9f)
+                Pitch = 89.9f;
+            if (Pitch < -89.9f)
+                Pitch = -89.9f;
 
             UpdateVectors();
         }
