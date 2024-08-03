@@ -125,7 +125,7 @@ namespace Voxelrendering2
             GL.UniformMatrix4(viewLocation, false, ref lightSpaceMatrix);
 
             int viewloc = GL.GetUniformLocation(Handle, "view");
-            GL.UniformMatrix4(viewloc, false, ref lightSpaceMatrix);
+            GL.UniformMatrix4(viewloc, false, ref view);
 
         }
         public void setvert(Matrix4 modelMatrix, Matrix4 view,Matrix4 projection, Matrix4 lightSpaceMatrix)
@@ -138,7 +138,7 @@ namespace Voxelrendering2
             GL.UniformMatrix4(viewLocation, false, ref lightSpaceMatrix);
 
             int viewloc = GL.GetUniformLocation(Handle, "view");
-            GL.UniformMatrix4(viewloc, false, ref lightSpaceMatrix);
+            GL.UniformMatrix4(viewloc, false, ref view);
 
         }
         public void setvert(Matrix4 modelMatrix, Matrix4 viewMatrix, Matrix4 projectionMatrix, bool staticModel)
@@ -161,10 +161,11 @@ namespace Voxelrendering2
             int staticmodelLocation = GL.GetUniformLocation(Handle, "useModelMatrix");
             GL.Uniform1(projectionLocation, staticmodelfloat);
         }
-        public void setfrag(int shadowMap, Vector3 lightPos, Vector3 viewPos, Vector3 lightColor)
+        public void setfrag(int shadowMap, Vector3 lightPos, Vector3 viewPos, Vector3 lightColor,int shadowsmothness)
         {
             Use();
             SetInt("shadowMap", shadowMap);
+            SetInt("shadowSmoothness", shadowsmothness);
             SetVector3("lightPos", lightPos);
             SetVector3("viewPos", viewPos);
             SetVector3("lightColor", lightColor);

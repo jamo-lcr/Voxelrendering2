@@ -35,6 +35,7 @@ namespace Voxelrendering2
                     for(int y =0;y < height; y++)
                     {
                         terrainheight[x,y,z] = height;
+
                     }
                 }
             }
@@ -113,6 +114,7 @@ namespace Voxelrendering2
                 vertexarray[o].Position = verts[o];
                 Vector3i idpos = vertstowichcube[o];
                 vertexarray[o].Color = GetRandomcolor(random) ;
+                //vertexarray[o].Color = new Vector3(0.8f,0.8f,0.8f) ;
                 //vertexarray[o].Color = new Vector3(Getnoise.getgraycolor(idpos) / 256f, Getnoise.getgraycolor(idpos) / 256f, Getnoise.getgraycolor(idpos) / 256f);
             }
             Console.WriteLine(vertices.Length+"verts "+verts.Count+"ind "+indicies.Count+"max "+max);

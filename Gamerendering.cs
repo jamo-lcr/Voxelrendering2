@@ -12,7 +12,7 @@ namespace Voxelrendering2
 {
     internal class Gamerendering
     {
-        public double deltatime;
+        public static double deltatime;
         public double time;
         public double cameraspeed=250f;
         public double mouserotationsensitivity=0.1f;
@@ -22,6 +22,9 @@ namespace Voxelrendering2
         {
             camera = new Camera(new Vector3(0.0f, 100.0f, 3.0f),0,0f);
             Terrainmeshgenerator terrainmeshgenerator = new Terrainmeshgenerator(250);
+           
+            Renderer.meshes.Add(addcube(Renderer.lightpos,10));
+
         }
         public void Update(Inputvar inputvar,GameWindow window)
         {
@@ -37,6 +40,40 @@ namespace Voxelrendering2
             camera.Position += (Vector3)deltapos;
             camera.ProcessMouseMovement(deltarotation.X,deltarotation.Y);
            
+        }
+        public static Mesh addcube(Vector3 pos,float scale)
+        {
+            Vector3[] cubeVertices = {
+            new Vector3(-0.5f + pos.X, -0.5f + pos.Y, -0.5f + pos.Z),
+            new Vector3(0.5f + pos.X, -0.5f + pos.Y, -0.5f + pos.Z),
+            new Vector3(0.5f + pos.X, 0.5f + pos.Y, -0.5f + pos.Z),
+            new Vector3(-0.5f + pos.X, 0.5f + pos.Y, -0.5f + pos.Z),
+            new Vector3(-0.5f + pos.X, -0.5f + pos.Y, 0.5f + pos.Z),
+            new Vector3(0.5f + pos.X, -0.5f + pos.Y, 0.5f + pos.Z),
+            new Vector3(0.5f + pos.X, 0.5f + pos.Y, 0.5f + pos.Z),
+            new Vector3(-0.5f + pos.X, 0.5f + pos.Y, 0.5f + pos.Z)
+            };
+            uint[] indicies = {
+             2, 1, 0, 3, 2, 0 , // front
+             4, 5, 6, 4, 6, 7 , // back
+             0, 4, 7, 0, 7, 3 , // left
+             6, 5, 1, 2, 6, 1 , // right
+             0, 1, 5, 0, 5, 4 , // bottom
+             2, 3, 7, 2, 7, 6   // top
+            };
+            MeshObject meshObject = new MeshObject();
+            Vertex[] vertexarray = new Vertex[cubeVertices.Length];
+            Random random = new Random();
+            for (int o = 0; o < vertexarray.Length; o++)
+            {
+                vertexarray[o].Position = cubeVertices[o]*scale;
+                vertexarray[o].Color = new Vector3(1,1,1);
+            }
+            meshObject.vertices = vertexarray;
+            meshObject.indices = indicies;
+            meshObject.pos = new Vector3(0, 0, 0);
+            Mesh mesh = new Mesh(meshObject);
+            return mesh;
         }
         
     }
