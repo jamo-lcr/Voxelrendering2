@@ -17,19 +17,26 @@ namespace Voxelrendering2
         public double cameraspeed=250f;
         public double mouserotationsensitivity=0.1f;
         public  Camera camera;
-
+        Terrainmeshgenerator terrainmeshgenerator;
         public void Start()
         {
             camera = new Camera(new Vector3(0.0f, 100.0f, 3.0f),0,0f);
-            Terrainmeshgenerator terrainmeshgenerator = new Terrainmeshgenerator(250);
-           
-            Renderer.meshes.Add(addcube(Renderer.lightpos,10));
+            terrainmeshgenerator = new Terrainmeshgenerator(new Vector3i(16,250,16),20);
+            //Renderer.meshes.Add(addcube(Renderer.lightpos,10));
+
+        }
+        public void UpdateTerrain()
+        {
+
+                terrainmeshgenerator.Updatechunkvisibility(terrainmeshgenerator.getchunkpos(camera.Position, terrainmeshgenerator.chunksize), terrainmeshgenerator.Renderdistance, terrainmeshgenerator.chunksize);
 
         }
         public void Update(Inputvar inputvar,GameWindow window)
         {
-            Camerainput(inputvar,window); 
-
+            Camerainput(inputvar,window);
+            //inhauptthread da syncissue meshes[i] edit at runtime
+            
+            UpdateTerrain();
         }
         public void Camerainput(Inputvar input, GameWindow window)
         {
@@ -61,7 +68,6 @@ namespace Voxelrendering2
              0, 1, 5, 0, 5, 4 , // bottom
              2, 3, 7, 2, 7, 6   // top
             };
-            MeshObject meshObject = new MeshObject();
             Vertex[] vertexarray = new Vertex[cubeVertices.Length];
             Random random = new Random();
             for (int o = 0; o < vertexarray.Length; o++)
@@ -69,10 +75,7 @@ namespace Voxelrendering2
                 vertexarray[o].Position = cubeVertices[o]*scale;
                 vertexarray[o].Color = new Vector3(1,1,1);
             }
-            meshObject.vertices = vertexarray;
-            meshObject.indices = indicies;
-            meshObject.pos = new Vector3(0, 0, 0);
-            Mesh mesh = new Mesh(meshObject);
+            Mesh mesh = new Mesh(vertexarray,indicies);
             return mesh;
         }
         

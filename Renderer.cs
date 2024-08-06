@@ -54,11 +54,11 @@ namespace Voxelrendering2
             // Set up vertex buffers and attributes
             _vertexBufferObject = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject);
-            GL.BufferData(BufferTarget.ArrayBuffer, meshes[0].meshobjectdata.vertices.Length * 9 * sizeof(float), meshes[0].meshobjectdata.vertices, BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, meshes[0].vertices.Length * 9 * sizeof(float), meshes[0].vertices, BufferUsageHint.StaticDraw);
 
             _elementBufferObject = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObject);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, meshes[0].meshobjectdata.indices.Length * sizeof(uint), meshes[0].meshobjectdata.indices, BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, meshes[0].indices.Length * sizeof(uint), meshes[0].indices, BufferUsageHint.StaticDraw);
 
             _vertexArrayObject = GL.GenVertexArray();
             GL.BindVertexArray(_vertexArrayObject);
@@ -120,15 +120,15 @@ namespace Voxelrendering2
             GL.BindVertexArray(_vertexArrayObject);
             for (int i = 0; i < meshes.Count; i++)
             {
-                Matrix4 model = CreateTransformationMatrix(meshes[i].meshobjectdata.pos, new Vector3(1, 1, 1), new Vector3(0, 0, 0));
+                Matrix4 model = CreateTransformationMatrix(meshes[i].pos, new Vector3(1, 1, 1), new Vector3(0, 0, 0));
                 _depthShader.SetMatrix4("model", model);
 
                 GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject);
-                GL.BufferData(BufferTarget.ArrayBuffer, meshes[i].meshobjectdata.vertices.Length * sizeof(float) * 9, meshes[i].meshobjectdata.vertices, BufferUsageHint.DynamicDraw);
+                GL.BufferData(BufferTarget.ArrayBuffer, meshes[i].vertices.Length * sizeof(float) * 9, meshes[i].vertices, BufferUsageHint.DynamicDraw);
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObject);
-                GL.BufferData(BufferTarget.ElementArrayBuffer, meshes[i].meshobjectdata.indices.Length * sizeof(int), meshes[i].meshobjectdata.indices, BufferUsageHint.DynamicDraw);
+                GL.BufferData(BufferTarget.ElementArrayBuffer, meshes[i].indices.Length * sizeof(int), meshes[i].indices, BufferUsageHint.DynamicDraw);
 
-                GL.DrawElements(PrimitiveType.Triangles, meshes[i].meshobjectdata.indices.Length, DrawElementsType.UnsignedInt, 0);
+                GL.DrawElements(PrimitiveType.Triangles, meshes[i].indices.Length, DrawElementsType.UnsignedInt, 0);
             }
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             
@@ -152,15 +152,15 @@ namespace Voxelrendering2
             GL.BindVertexArray(_vertexArrayObject);
             for (int i = 0; i < meshes.Count; i++)
             {
-                Matrix4 model = CreateTransformationMatrix(meshes[i].meshobjectdata.pos, new Vector3(1, 1, 1), new Vector3(0, 0, 0));
+                Matrix4 model = CreateTransformationMatrix(meshes[i].pos, new Vector3(1, 1, 1), new Vector3(0, 0, 0));
                 _shader.SetMatrix4("model", model);
             
                 GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject);
-                GL.BufferData(BufferTarget.ArrayBuffer, meshes[i].meshobjectdata.vertices.Length * sizeof(float) * 9, meshes[i].meshobjectdata.vertices, BufferUsageHint.DynamicDraw);
+                GL.BufferData(BufferTarget.ArrayBuffer, meshes[i].vertices.Length * sizeof(float) * 9, meshes[i].vertices, BufferUsageHint.DynamicDraw);
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObject);
-                GL.BufferData(BufferTarget.ElementArrayBuffer, meshes[i].meshobjectdata.indices.Length * sizeof(int), meshes[i].meshobjectdata.indices, BufferUsageHint.DynamicDraw);
+                GL.BufferData(BufferTarget.ElementArrayBuffer, meshes[i].indices.Length * sizeof(int), meshes[i].indices, BufferUsageHint.DynamicDraw);
             
-                GL.DrawElements(PrimitiveType.Triangles, meshes[i].meshobjectdata.indices.Length, DrawElementsType.UnsignedInt, 0);
+                GL.DrawElements(PrimitiveType.Triangles, meshes[i].indices.Length, DrawElementsType.UnsignedInt, 0);
             }
             
             SwapBuffers();
@@ -195,7 +195,7 @@ namespace Voxelrendering2
             //Console.WriteLine(this.ClientSize.X / this.ClientSize.Y);
             Gamerendering.deltatime = e.Time;
             rendering.time += e.Time;
-            meshes[1].meshobjectdata.pos = lightpos;
+            //meshes[1].pos = lightpos;
             if (inputvar.keyboardState.IsKeyDown(Keys.Escape))
             {
                 Close();

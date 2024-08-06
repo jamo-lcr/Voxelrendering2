@@ -16,46 +16,40 @@ namespace Voxelrendering2
         public Vector3 Normal ;
         public Vector3 Color;
     }
-    public struct MeshObject
+    public class Mesh
     {
         public Vertex[] vertices;
         public uint[] indices;
         public Vector3 pos;
 
-    }
-    public class Mesh
-    {
-        public MeshObject meshobjectdata;
-
-        public Mesh(MeshObject meshobjectdata)
+        public Mesh(Vertex[] vertices, uint[] indices)
         {
-            this.meshobjectdata = meshobjectdata;
-            CalculateNormals(meshobjectdata.vertices, meshobjectdata.indices);
-            Console.WriteLine(meshobjectdata.vertices.Length);
-
+            CalculateNormals(vertices, indices);
+            this.vertices = vertices;
+            this.indices = indices;
             InitializeVAO();
         }
         private void InitializeVAO()
         {
             List<float> bufferdata = new List<float>();
 
-            for (int i = 0; i < meshobjectdata.vertices.Length; i++) 
+            for (int i = 0; i < vertices.Length; i++) 
             {
-                bufferdata.Add(meshobjectdata.vertices[i].Position.X);
-                bufferdata.Add(meshobjectdata.vertices[i].Position.Y);
-                bufferdata.Add(meshobjectdata.vertices[i].Position.Z);
-                bufferdata.Add(meshobjectdata.vertices[i].Normal.X);
-                bufferdata.Add(meshobjectdata.vertices[i].Normal.Y);
-                bufferdata.Add(meshobjectdata.vertices[i].Normal.Z);
-                bufferdata.Add(meshobjectdata.vertices[i].Color.X);
-                bufferdata.Add(meshobjectdata.vertices[i].Color.Y);
-                bufferdata.Add(meshobjectdata.vertices[i].Color.Z);
+                bufferdata.Add(vertices[i].Position.X);
+                bufferdata.Add(vertices[i].Position.Y);
+                bufferdata.Add(vertices[i].Position.Z);
+                bufferdata.Add(vertices[i].Normal.X);
+                bufferdata.Add(vertices[i].Normal.Y);
+                bufferdata.Add(vertices[i].Normal.Z);
+                bufferdata.Add(vertices[i].Color.X);
+                bufferdata.Add(vertices[i].Color.Y);
+                bufferdata.Add(vertices[i].Color.Z);
             }
             int projectedSize = bufferdata.Count * sizeof(float);
             int actualSize = bufferdata.ToArray().Length * sizeof(float);
             GL.BufferData(BufferTarget.ArrayBuffer, bufferdata.Count * sizeof(float), bufferdata.ToArray(), BufferUsageHint.StaticDraw);
-            Console.WriteLine($"Projected Size: {projectedSize} bytes");
-            Console.WriteLine($"Actual Size: {actualSize} bytes");
+            //Console.WriteLine($"Projected Size: {projectedSize} bytes");
+            //Console.WriteLine($"Actual Size: {actualSize} bytes");
         }
         //onlyvertsnoclor
         public static Vector3[] CalculateNormals(Vertex[] verticies, uint[] indices)
