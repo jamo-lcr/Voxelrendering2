@@ -15,24 +15,23 @@ namespace Voxelrendering2
         public List<Chunk> Visiblechunks = new List<Chunk>();
         //isvisible
         public List<Chunk> Renderedchunks = new List<Chunk>();
-        public Terrainmeshgenerator(Vector3i chunksize,int Renderdistance) 
+
+        public Terrainmeshgenerator(Vector3i chunksize, int Renderdistance)
         {
             this.chunksize = chunksize;
             this.Renderdistance = Renderdistance;
-            Updatechunkvisibility(getchunkpos(playerpos,chunksize), Renderdistance,chunksize);
-            
         }
-        public void Updatechunkvisibility(Vector3 chunkpos,int Renderdistance, Vector3i chunksize)
+        public void Updatechunkvisibility(Vector3 chunkpos, int Renderdistance, Vector3i chunksize)
         {
             Visiblechunks.Clear();
-            for (int x = (int)chunkpos.X- ((Renderdistance * chunksize.X)/2); x < (Renderdistance*chunksize.X/2)+ chunkpos.X; x+= chunksize.X) 
+            for (int x = (int)chunkpos.X - ((Renderdistance * chunksize.X) / 2); x < (Renderdistance * chunksize.X / 2) + chunkpos.X; x += chunksize.X)
             {
                 for (int z = (int)chunkpos.Z - ((Renderdistance * chunksize.Z) / 2); z < (Renderdistance * chunksize.Z / 2) + chunkpos.Z; z += chunksize.Z)
                 {
-                    if (chunkexist(Visiblechunks,new Vector3(x,0,z)) == false)
+                    if (chunkexist(Visiblechunks, new Vector3(x, 0, z)) == false)
                     {
                         Chunk chunk = GetChunkfrompos(allchunksloaded, new Vector3(x, 0, z));
-                        if ((chunk==null))
+                        if ((chunk == null))
                         {
                             chunk = new Chunk(chunksize, new Vector3(x, 0, z));
                         }
@@ -40,34 +39,43 @@ namespace Voxelrendering2
                     }
                 }
             }
-            Renderchunks(Visiblechunks,Renderedchunks,3);
-            cleanchunks(allchunksloaded,Visiblechunks);
+
+
         }
+        public void Applychunks()
+        {
+            Renderchunks(Visiblechunks, Renderedchunks, 10);
+            cleanchunks(allchunksloaded, Visiblechunks);
+
+        }
+
         public Chunk GetChunkfrompos(List<Chunk> chunks, Vector3 pos)
         {
             foreach (var chunk in chunks)
             {
-                if (pos.X == chunk.pos.X &&pos.Z == chunk.pos.Z )
+                if (pos.X == chunk.pos.X && pos.Z == chunk.pos.Z)
                 {
                     return chunk;
                 }
             }
-            return null; // Or handle not found case
+            return null;
         }
-        public void Renderchunks(List<Chunk> Visible,List<Chunk> Rendered,int renderuntilnextupdate)
+        public void Renderchunks(List<Chunk> Visible, List<Chunk> Rendered, int renderuntilnextupdate)
         {
-            List<Chunk> torender = FindMissingElements(Visible,Rendered);
-            for (int i = 0; i < renderuntilnextupdate; i++) 
+            List<Chunk> torender = FindMissingElements(Visible, Rendered);
+            for (int i = 0; i < renderuntilnextupdate; i++)
             {
                 if (i < torender.Count)
                 {
                     Chunk chunk = torender[i];
                     //creates and renders the chunk
                     chunk.generatechunk();
-                    Renderer.meshes.Add(chunk.chunkmesh);
+                    Renderer.activeScene.addMesh(chunk.chunkmesh);
 
                     Renderedchunks.Add(chunk);
                     allchunksloaded.Add(chunk);
+                    //Performence
+                    Renderer.activeScene.Updatebuffer = true;
                 }
             }
         }
@@ -77,15 +85,17 @@ namespace Voxelrendering2
         }
         public void derenderchunks(List<Chunk> allchunksloaded, List<Chunk> Visiblechunks)
         {
-            List <Chunk>chunkstoderender = FindMissingElements(allchunksloaded,Visiblechunks);
-            //Console.WriteLine(chunkstoderender.Count);
-            foreach (Chunk chunk in chunkstoderender) 
+
+            List<Chunk> chunkstoderender = FindMissingElements(allchunksloaded, Visiblechunks);
+            for (int i = 0; i < chunkstoderender.Count; i++)
             {
-                
-                Renderer.meshes.Remove(chunk.chunkmesh);
+                Chunk chunk = chunkstoderender[i];
+                Renderer.activeScene.removeMesh(chunk.chunkmesh);
                 Renderedchunks.Remove(chunk);
                 //chunks später entladen
                 deloadchunks(chunk);
+                //Performence
+                Renderer.activeScene.Updatebuffer = true;
             }
         }
         public void deloadchunks(Chunk chunk)
@@ -103,21 +113,19 @@ namespace Voxelrendering2
 
         public bool chunkexist(List<Chunk> chunks, Vector3 pos)
         {
-            foreach (Chunk chunk in chunks) 
+            foreach (Chunk chunk in chunks)
             {
-                //Console.WriteLine(chunk.pos.X +" "+pos.X);
-                if(chunk.pos.X==pos.X&&chunk.pos.Z==pos.Z)
+                if (chunk.pos.X == pos.X && chunk.pos.Z == pos.Z)
                 {
                     return true;
                 }
             }
             return false;
         }
-        public Vector3 getchunkpos(Vector3 pos,Vector3i chunksize)
+        public Vector3 getchunkpos(Vector3 pos, Vector3i chunksize)
         {
             int x = (int)Math.Ceiling(pos.X / (double)chunksize.X) * chunksize.X;
             int z = (int)Math.Ceiling(pos.Z / (double)chunksize.Z) * chunksize.Z;
-
             return new Vector3(x, 0, z);
         }
 

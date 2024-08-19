@@ -5,7 +5,7 @@ namespace Voxelrendering2
 {
     internal static class Noise
     {
-        public  class PerlinNoise
+        public class PerlinNoise
         {
             int[] permutation;
 
@@ -127,7 +127,7 @@ namespace Voxelrendering2
                 public float xoffset;
                 public float zoffset;
             }
-        private static readonly int[] perm = {
+            private static readonly int[] perm = {
                 151,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,
                 140,36,103,30,69,142,8,99,37,240,21,10,23,190,6,148,
                 247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,
@@ -180,7 +180,7 @@ namespace Voxelrendering2
                     permMod12[i] = perm[i % perm.Length] % 12;
                 }
             }
-            public Simplexnoisesettings setsettings(float scale,float xoffset,float yoffset)
+            public Simplexnoisesettings setsettings(float scale, float xoffset, float yoffset)
             {
                 Simplexnoisesettings settings = new Simplexnoisesettings();
                 settings.scale = scale;
@@ -246,7 +246,7 @@ namespace Voxelrendering2
                 float n2 = t2 < 0 ? 0 : MathF.Pow(t2, 4.0f) * Dot(gi2, x2, y2);
 
                 // Return the final noise value
-                return ((70.0f * (n0 + n1 + n2)))+1f;
+                return ((70.0f * (n0 + n1 + n2))) + 1f;
             }
 
             private static float Dot(int g, float x, float y)
@@ -266,7 +266,7 @@ namespace Voxelrendering2
                 return (int)MathF.Floor(x);
             }
 
-            public float[,] GetNoiseArray(int width, int height,Simplexnoisesettings settings)
+            public float[,] GetNoiseArray(int width, int height, Simplexnoisesettings settings)
             {
                 float[,] noiseArray = new float[width, height];
                 for (int y = 0; y < height; y++)
@@ -276,7 +276,7 @@ namespace Voxelrendering2
                         // Convert array coordinates to noise coordinates
                         float nx = (x);
                         float ny = (y);
-                        noiseArray[x, y] = Noise(nx , ny,settings ) ; // Scale coordinates as needed
+                        noiseArray[x, y] = Noise(nx, ny, settings); // Scale coordinates as needed
                     }
                 }
 

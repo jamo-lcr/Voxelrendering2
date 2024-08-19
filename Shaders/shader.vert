@@ -15,12 +15,13 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 lightProjection;
 uniform mat4 lightView;
+uniform mat4 lightSpaceMatrix;
 
 void main()
 {
     FragPos = vec3(model * vec4(aPos, 1.0));
     Normal = mat3(transpose(inverse(model))) * aNormal;
-    mat4 lightSpaceMatrix = lightProjection * lightView * model;
+    //mat4 lightSpaceMatrix = lightProjection * lightView * model;
     color = aColor;
     FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0);
     

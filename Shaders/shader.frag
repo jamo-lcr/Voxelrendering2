@@ -41,7 +41,7 @@ float ShadowCalculation(vec4 fragPosLightSpace)
             float mean = moments.x;
             float meanSquared = moments.y;
             float variance = meanSquared - (mean * mean);
-            variance = max(variance, 0.00002); // Avoid negative variance
+            variance = max(variance, 0.0000005); // Avoid negative variance
 
             // Compute the Chebyshev's upper bound
             float d = currentDepth - mean;

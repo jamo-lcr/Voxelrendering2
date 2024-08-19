@@ -19,6 +19,7 @@ namespace Voxelrendering2
             // Create and run the Renderer
             using (var renderer = new Renderer(gameWindowSettings, nativeWindowSettings))
             {
+                Game.Start();
                 renderer.UpdateFrequency = 120.0;
                 renderer.Run();
             }

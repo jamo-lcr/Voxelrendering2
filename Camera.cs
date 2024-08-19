@@ -19,23 +19,26 @@ namespace Voxelrendering2
         public float Pitch { get; set; }
 
         public Matrix4 ViewMatrix { get { return Matrix4.LookAt(Position, Position + Front, Up); } }
+        public Matrix4 ProjectionMatrix;
 
-        public Camera(Vector3 position, float yaw, float pitch)
+        public Camera(Vector3 position, float yaw, float pitch, float degrees, Vector2 Size, float near, float far)
         {
+            setProjectionmatrix(degrees, Size, near, far);
             Position = position;
             Yaw = yaw;
             Pitch = pitch;
             UpdateVectors();
         }
-
+        public void setProjectionmatrix(float degrees, Vector2 Size, float near, float far)
+        {
+            ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(degrees), (float)Size.X / Size.Y, 0.1f, 1000f);
+        }
 
 
         public void ProcessMouseMovement(float deltaX, float deltaY)
         {
             Yaw += deltaX;
             Pitch -= deltaY;
-            //Console.WriteLine("Yaw: "+Yaw+"Pitch: "+Pitch);
-            // Constrain the pitch to avoid flipping
             if (Pitch > 89.9f)
                 Pitch = 89.9f;
             if (Pitch < -89.9f)
@@ -46,16 +49,18 @@ namespace Voxelrendering2
 
         private void UpdateVectors()
         {
-            // Calculate the new Front, Right, and Up vectors based on the updated Euler angles
             Vector3 front;
             front.X = MathF.Cos(MathHelper.DegreesToRadians(Yaw)) * MathF.Cos(MathHelper.DegreesToRadians(Pitch));
             front.Y = MathF.Sin(MathHelper.DegreesToRadians(Pitch));
             front.Z = MathF.Sin(MathHelper.DegreesToRadians(Yaw)) * MathF.Cos(MathHelper.DegreesToRadians(Pitch));
             Front = Vector3.Normalize(front);
 
-            // Recalculate Right and Up vectors
             Right = Vector3.Normalize(Vector3.Cross(Front, Vector3.UnitY));
             Up = Vector3.Normalize(Vector3.Cross(Right, Front));
+        }
+        public Matrix4 GetProjectionMatrix(Vector2i Size, float nearplane, float farplane)
+        {
+            return Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45.0f), (float)Size.X / Size.Y, nearplane, farplane);
         }
     }
 }
