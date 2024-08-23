@@ -21,6 +21,7 @@ namespace Voxelrendering2
         public Matrix4 ViewMatrix { get { return Matrix4.LookAt(Position, Position + Front, Up); } }
         public Matrix4 ProjectionMatrix;
 
+        public float near;
         public Camera(Vector3 position, float yaw, float pitch, float degrees, Vector2 Size, float near, float far)
         {
             setProjectionmatrix(degrees, Size, near, far);
@@ -31,7 +32,7 @@ namespace Voxelrendering2
         }
         public void setProjectionmatrix(float degrees, Vector2 Size, float near, float far)
         {
-            ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(degrees), (float)Size.X / Size.Y, 0.1f, 1000f);
+            ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(degrees), (float)Size.X / Size.Y, near, far);
         }
 
 

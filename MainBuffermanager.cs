@@ -31,8 +31,8 @@ namespace OpentkVoxelRendererAufräumen
             _elementBuffer._bufferObject = GL.GenBuffer();
             _vertexBuffer._bufferObject = GL.GenBuffer();
 
-            int elementBufferSize = 316108288; 
-            int vertexBufferSize = 46003048;   
+            int elementBufferSize = 2116108288; 
+            int vertexBufferSize = 2116108288;   
 
             setmaxbuffersize(_elementBuffer, _vertexBuffer, elementBufferSize, vertexBufferSize);
         }

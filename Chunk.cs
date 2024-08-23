@@ -28,7 +28,7 @@ namespace Voxelrendering2
         }
         public void generatechunk()
         {
-            chunkgenerator.generatechunk(0, size, pos.X, pos.Z, pos);
+            chunkgenerator.generatechunk(1, size, pos.X, pos.Z, pos);
         }
         public ushort[,,] getterraintype()
         {
@@ -54,6 +54,19 @@ namespace Voxelrendering2
                 {
                     generateterrainheightandtypefromnoise(chunksize, offsetX, offsetZ);
                 }
+                if (getheightmode == 1) 
+                {
+                    Vector2i dimensions = Heightmapcollection.heightmap.getdimensions();
+                    if (offsetX < dimensions.X&&offsetZ<dimensions.Y&&offsetZ>0&&offsetX>0)
+                    {
+                        generateterrainheightandtypefromheightmap(Heightmapcollection.heightmap, chunksize, offsetX, offsetZ);
+                    }
+                    else
+                    {
+                        generateterrainheightandtypefromnoise(chunksize, offsetX, offsetZ);
+                    }
+
+                }
                 chunk.chunkmesh = generatemesh(chunk.terraintype, new Vector3i(0, 0, 0), chunksize);
                 chunk.chunkmesh.pos = pos;
             }
@@ -61,21 +74,83 @@ namespace Voxelrendering2
             {
                 ushort[,,] terraintype = new ushort[chunksize.X + 2, chunksize.Y, chunksize.Z + 2];
                 Noise.SimplexNoise noise = new Noise.SimplexNoise();
-                float[,] heights = noise.GetNoiseArray(chunksize.X + 2, chunksize.Z + 2, noise.setsettings(0.01f, offsetX - 1, offsetZ - 1));
+                float[,] heights = noise.GetNoiseArray(chunksize.X + 2, chunksize.Z + 2, noise.setsettings(0.01f, offsetX - 1, offsetZ - 1,0.1f));
+                float[,] slope = CalculateSlopemap(heights);
 
                 ushort max = 0;
                 for (int x = 0; x < chunksize.X + 2; x++)
                 {
                     for (int z = 0; z < chunksize.Z + 2; z++)
                     {
-                        ushort height = (ushort)((heights[x, z] / 10) * chunksize.Y);
+                        ushort height = (ushort)((heights[x, z]) * chunksize.Y);
+                        if(height>chunksize.Y)
+                            height=(ushort)chunksize.Y;
                         for (int y = 0; y < height; y++)
                         {
-                            terraintype[x, y, z] = 1;
+                            terraintype[x, y, z] = determineterraintype(x, y, z, heights, slope, terraintype);
                         }
                     }
                 }
                 chunk.terraintype = terraintype;
+            }
+            public void generateterrainheightandtypefromheightmap(Heightmap heightmap, Vector3i chunksize, float offsetX, float offsetZ)
+            {
+                ushort[,,] terraintype = new ushort[chunksize.X + 2, chunksize.Y, chunksize.Z + 2];
+                float[,] heights = heightmap.getheightfromnoisemap(new Vector3i(chunksize.X + 2, chunksize.X + 2, chunksize.Z + 2), new Vector3i((int)offsetX,0, (int)offsetZ));
+                float[,] slope = CalculateSlopemap(heights);
+                for (int x = 0; x < chunksize.X + 2; x++)
+                {
+                    for (int z = 0; z < chunksize.Z + 2; z++)
+                    {
+                        ushort height = (ushort)((heights[x, z] ) * chunksize.Y);
+                        for (int y = 0; y < height; y++)
+                        {
+                            terraintype[x, y, z] = determineterraintype(x,y,z,heights,slope,terraintype);
+                        }
+                    }
+                }
+                chunk.terraintype = terraintype;
+            }
+            public ushort determineterraintype(int x,int y,int z,float[,] height, float[,] slope, ushort[,,] terraintype)
+            {
+                if (slope[x,z] <= 0.002)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 2;
+                }
+            }
+            public float[,] CalculateSlopemap(float[,] heightmap)
+            {
+                int width = heightmap.GetLength(0);
+                int height = heightmap.GetLength(1);
+                float[,] slopeMap = new float[width, height];
+
+                for (int x = 1; x < width - 1; x++)
+                {
+                    for (int z = 1; z < height - 1; z++)
+                    {
+                        float X1 = Math.Abs(heightmap[x + 1, z] - heightmap[x, z]) / 2.0f;
+                        float X2 = Math.Abs(heightmap[x - 1, z] - heightmap[x, z]) / 2.0f;
+                        float Z1 = Math.Abs(heightmap[x, z + 1] - heightmap[x, z]) / 2.0f;
+                        float Z2 = Math.Abs(heightmap[x, z - 1] - heightmap[x, z]) / 2.0f;
+
+                        float X1Z1 = Math.Abs(heightmap[x + 1, z + 1] - heightmap[x, z]) / (2.0f * (float)Math.Sqrt(2));
+                        float X1Z2 = Math.Abs(heightmap[x + 1, z - 1] - heightmap[x, z]) / (2.0f * (float)Math.Sqrt(2));
+                        float X2Z1 = Math.Abs(heightmap[x - 1, z + 1] - heightmap[x, z]) / (2.0f * (float)Math.Sqrt(2));
+                        float X2Z2 = Math.Abs(heightmap[x - 1, z - 1] - heightmap[x, z]) / (2.0f * (float)Math.Sqrt(2));
+
+                        float gradientX = (X1 + X2) / 2.0f;
+                        float gradientZ = (Z1 + Z2) / 2.0f;
+
+                        float gradientDiag = (X1Z1 + X1Z2 + X2Z1 + X2Z2) / 4.0f;
+                        slopeMap[x, z] = (float)Math.Sqrt(gradientX * gradientX + gradientZ * gradientZ + gradientDiag * gradientDiag);
+                    }
+                }
+
+                return slopeMap;
             }
             public Mesh generatemesh(ushort[,,] blocktype, Vector3i pos, Vector3i size)
             {
@@ -148,8 +223,7 @@ namespace Voxelrendering2
                 {
                     vertexarray[o].Position = verts[o];
                     Vector3i idpos = vertstowichcube[o];
-                    vertexarray[o].Color = GetRandomcolor(random);
-                    vertexarray[o].Color = Terraintype.getColor(chunk.terraintype[idpos.X, idpos.Y, idpos.Z], new Vector3(idpos.X, idpos.Y, idpos.Z));
+                    vertexarray[o].Color = Terraintype.getColor(chunk.terraintype[idpos.X, idpos.Y, idpos.Z], this.chunk.pos + new Vector3(idpos.X, idpos.Y, idpos.Z));
                 }
                 Mesh mesh = new Mesh(vertexarray, indicies.ToArray());
 

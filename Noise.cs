@@ -1,5 +1,7 @@
-﻿using System;
+﻿using OpenTK.Mathematics;
 using System;
+using System;
+using System.Drawing;
 
 namespace Voxelrendering2
 {
@@ -126,6 +128,7 @@ namespace Voxelrendering2
                 public float yoffset;
                 public float xoffset;
                 public float zoffset;
+                public float maxyvalue;
             }
             private static readonly int[] perm = {
                 151,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,
@@ -180,12 +183,13 @@ namespace Voxelrendering2
                     permMod12[i] = perm[i % perm.Length] % 12;
                 }
             }
-            public Simplexnoisesettings setsettings(float scale, float xoffset, float yoffset)
+            public Simplexnoisesettings setsettings(float scale, float xoffset, float yoffset,float maxyvalue)
             {
                 Simplexnoisesettings settings = new Simplexnoisesettings();
                 settings.scale = scale;
                 settings.xoffset = xoffset;
                 settings.yoffset = yoffset;
+                settings.maxyvalue = maxyvalue;
                 return settings;
             }
 
@@ -246,7 +250,7 @@ namespace Voxelrendering2
                 float n2 = t2 < 0 ? 0 : MathF.Pow(t2, 4.0f) * Dot(gi2, x2, y2);
 
                 // Return the final noise value
-                return ((70.0f * (n0 + n1 + n2))) + 1f;
+                return ((((70.0f * (n0 + n1 + n2))) + 1f)/2)* simplexsettings.maxyvalue;
             }
 
             private static float Dot(int g, float x, float y)

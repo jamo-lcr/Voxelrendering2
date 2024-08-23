@@ -22,8 +22,9 @@ namespace Voxelrendering2
         static Terrainmeshgenerator terrainmeshgenerator;
         public static void Start()
         {
+            Heightmapcollection.heightmap = new Heightmap();
             camera = new Camera(new Vector3(0.0f, 100.0f, 3.0f), 0, 0f, 45, new Vector2(2000, 2000), 0.1f, 1000f);
-            terrainmeshgenerator = new Terrainmeshgenerator(new Vector3i(16, 250, 16), 17);
+            terrainmeshgenerator = new Terrainmeshgenerator(new Vector3i(16, 256, 16), 35);
         }
         public static void Update(GameWindow window)
         {
@@ -31,7 +32,6 @@ namespace Voxelrendering2
             Camerainput(Getcurrentinputstate(window), window);
             terrainmeshgenerator.Updatechunkvisibility(terrainmeshgenerator.getchunkpos(camera.Position, terrainmeshgenerator.chunksize), terrainmeshgenerator.Renderdistance, terrainmeshgenerator.chunksize);
             terrainmeshgenerator.Applychunks();
-            //TerrainRendering();
             Console.WriteLine(1 / deltatime_ms);
         }
         public static void TerrainRendering()

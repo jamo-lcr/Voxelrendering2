@@ -75,7 +75,6 @@ namespace Voxelrendering2
                     Renderedchunks.Add(chunk);
                     allchunksloaded.Add(chunk);
                     //Performence
-                    Renderer.activeScene.Updatebuffer = true;
                 }
             }
         }

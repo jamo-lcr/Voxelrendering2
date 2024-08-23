@@ -6,7 +6,6 @@ using OpenTK.Mathematics;
 using System.Diagnostics;
 using OpenTK.Input;
 using System.Collections.Generic;
-using SharpNoise.Models;
 using System.Reflection;
 using OpentkVoxelRendererAufräumen;
 
@@ -24,6 +23,8 @@ namespace Voxelrendering2
 
         public static Scene activeScene;
         public static MainBuffermanager mainBuffermanager;
+
+        public int depthmapsize = 16000;
         public Renderer(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
             activeScene = new Scene();
@@ -36,9 +37,8 @@ namespace Voxelrendering2
             Generateimportantobjects();
             SetOpenGLSettings();
             InitializeVertexArrayObject();
-            SetupDepthMapFramebuffer(new Vector2i(4096, 4096));
-            LoadShaders();
-
+            SetupDepthMapFramebuffer(new Vector2i(depthmapsize, depthmapsize));
+            InitializeShaders();
         }
         public void Generateimportantobjects()
         {
@@ -50,6 +50,8 @@ namespace Voxelrendering2
         {
             GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             GL.Enable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.CullFace);
+            GL.CullFace(CullFaceMode.Back);
         }
         #region initrenderstuff
 
@@ -73,7 +75,7 @@ namespace Voxelrendering2
             _depthMap = GL.GenTexture();
 
             GL.BindTexture(TextureTarget.Texture2D, _depthMap);
-            GL.TexImage2D(All.Texture2D, 0, All.DepthComponent32f, Shadowsize.X, Shadowsize.Y, 0, All.DepthComponent, All.Float, IntPtr.Zero);
+            GL.TexImage2D(All.Texture2D, 0, All.DepthComponent, Shadowsize.X, Shadowsize.Y, 0, All.DepthComponent, All.Float, IntPtr.Zero);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToBorder);
@@ -86,7 +88,7 @@ namespace Voxelrendering2
         }
         #endregion
         #region shaders
-        private void LoadShaders()
+        private void InitializeShaders()
         {
             _mainShader = new Shader(GetShaderPath("shader.vert"), GetShaderPath("shader.frag"));
             _depthShader = new Shader(GetShaderPath("depth.vert"), GetShaderPath("depth.frag"));
@@ -103,8 +105,8 @@ namespace Voxelrendering2
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
-            Vector3 lightpos = new Vector3(0, 200, 300);
-            Vector2i Shadowsize = new Vector2i(4096, 4096);
+            Vector3 lightpos = new Vector3(0, 200, 60);
+            Vector2i Shadowsize = new Vector2i(depthmapsize, depthmapsize);
             Render(Renderdepthmap(Shadowsize, lightpos), Game.camera.ViewMatrix, Game.camera.ProjectionMatrix);
 
             SwapBuffers();
@@ -115,8 +117,8 @@ namespace Voxelrendering2
         {
             GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
 
-            Matrix4 lightProjection = Matrix4.CreateOrthographic(Shadowsize.X / 32, Shadowsize.Y / 32, 0f, 450f);
-            Matrix4 lightView = Matrix4.LookAt(lightpos, new Vector3(125, 0, 125), Vector3.UnitY);
+            Matrix4 lightProjection = Matrix4.CreateOrthographic(Shadowsize.X/6000* Game.camera.Position.Y, Shadowsize.Y/6000* Game.camera.Position.Y, 0.1f, 1000f+Game.camera.Position.Y);
+            Matrix4 lightView = Matrix4.LookAt(lightpos+new Vector3(Game.camera.Position.X, Game.camera.Position.Y, Game.camera.Position.Z), new Vector3(Game.camera.Position.X, Game.camera.Position.Y, Game.camera.Position.Z), Vector3.UnitY);
             Matrix4 lightSpaceMatrix = lightView * lightProjection;
 
             _depthShader.Use();
@@ -152,7 +154,7 @@ namespace Voxelrendering2
             _mainShader.SetMatrix4("projection", ProjectionMatrix);
             _mainShader.SetMatrix4("lightSpaceMatrix", lightSpaceMatrix);
             _mainShader.SetInt("shadowMap", _depthMap);
-            _mainShader.SetInt("shadowSmoothness", 4);
+            _mainShader.SetInt("shadowSmoothness", 2);
             _mainShader.SetVector3("lightPos", Scene.lightpos);
             _mainShader.SetVector3("viewPos", Game.camera.Position);
             _mainShader.SetVector3("lightColor", new Vector3(1.0f, 1.0f, 0.9f) * 1.0f);
