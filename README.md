@@ -15,10 +15,10 @@ A simple voxelrenderer, that Renders a heightmap
    2.Navigate to the project directory
       ```bash
      cd Voxelrendering2
-   ```
+      ```
   
    3.Add OpenTK
-      ```bash
+   ```bash
      dotnet add package OpenTK
      dotnet restore
    ```
